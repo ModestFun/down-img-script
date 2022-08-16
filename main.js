@@ -1,5 +1,4 @@
 const process = require('child_process');
-const fs = require('fs-extra');
 const ChildProcess = process.fork('./downImgScript.js');
 
 ChildProcess.on('exit', function (code) {
