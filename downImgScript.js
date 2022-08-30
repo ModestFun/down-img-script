@@ -2,6 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const md5 = require("md5");
+const path = require('path');
 const salt = 'E=j_Z`$*NxgAOla';
 const request = require('request')
 const host = process.argv[2];
@@ -17,21 +18,28 @@ const getUnDownImgList = async () => {
     const res = await axios.post(`${host}/getUnDownloadImgList`, {
       token
     });
+
     if (res.data.success) {
       return res.data.imgList;
     }
   } catch (err) {
     console.log(err);
-  } finally {
     return [];
   }
 }
 
 const runDownLoad = async () => {
   const arr = await getUnDownImgList();
+  console.log(arr);
   if (arr.length === 0) {
     return console.log('本轮无文件可下载');
   }
+
+  const isExists = fs.existsSync(downDir);
+  if (!isExists) {
+    fs.mkdirSync(downDir);
+  }
+
   arr.forEach(item => {
     request(`${host}/downloadImg/${item.id}`, { responseType: 'blob' }).pipe(
       fs.createWriteStream(`${downDir}/${item.id}.jpg`)
